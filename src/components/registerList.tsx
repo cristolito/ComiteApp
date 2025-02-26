@@ -43,6 +43,14 @@ const ListaRegistros: React.FC<ListaRegistrosProps> = ({ registros }) => {
                 <p>Profesor: {registroSeleccionado.profesorAsignado}</p>
                 <p>Duración: {registroSeleccionado.duracionHoras} horas</p>
                 <p>Objetivo General: {registroSeleccionado.objetivoGeneral}</p>
+                <h6>Unidades de Aprendizaje:</h6>
+                <ul>
+                  {registroSeleccionado.unidadesAprendizaje.map((unidad, idx) => (
+                    <li key={idx}>
+                      <strong>{unidad.nombre}</strong> - Saber: {unidad.porcentajes.saber}%, Hacer-Ser: {unidad.porcentajes.hacerSer}%
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

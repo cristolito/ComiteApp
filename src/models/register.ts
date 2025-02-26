@@ -1,12 +1,12 @@
 export interface UnidadAprendizaje {
-    id: number;
-    nombre: string;
-    competenciaEspecifica: string;
-    numeroSemanas: number;
-    resultadoAprendizaje: string;
+    id: number; // Identificador único de la unidad
+    nombre: string; // Nombre de la unidad
+    competenciaEspecifica: string; // Competencia específica
+    numeroSemanas: number; // Número de semanas
+    resultadoAprendizaje: string; // Resultado de aprendizaje
     porcentajes: {
-      saber: number;
-      hacerSer: number;
+      saber: number; // Porcentaje de Saber
+      hacerSer: number; // Porcentaje de Hacer-Ser
     };
   }
   
@@ -18,5 +18,5 @@ export interface UnidadAprendizaje {
     cuatrimestre: string;
     nivelCompetencia: string;
     objetivoGeneral: string;
-    unidadesAprendizaje: UnidadAprendizaje[];
+    unidadesAprendizaje: UnidadAprendizaje[]; // Lista de unidades de aprendizaje
   }
