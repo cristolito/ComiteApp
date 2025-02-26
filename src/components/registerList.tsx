@@ -1,58 +1,51 @@
 import React, { useState } from "react";
-
-interface Registro {
-  materia: string;
-  familiaCarrera: string;
-  cuatrimestre: string;
-  unidadesAprendizaje: number;
-  competencia: string;
-  objetivoGeneral: string;
-  unidadesDetalle: any[];
-}
+import { RegistroAsignatura } from "../models/register";
 
 interface ListaRegistrosProps {
-  registros: Registro[];
+  registros: RegistroAsignatura[];
 }
 
 const ListaRegistros: React.FC<ListaRegistrosProps> = ({ registros }) => {
-  const [modalAbierto, setModalAbierto] = useState<boolean>(false);
-  const [registroSeleccionado, setRegistroSeleccionado] =
-    useState<Registro | null>(null);
-
-  const abrirModal = (registro: Registro) => {
-    setRegistroSeleccionado(registro);
-    setModalAbierto(true);
-  };
-
-  const cerrarModal = () => {
-    setModalAbierto(false);
-  };
+  const [registroSeleccionado, setRegistroSeleccionado] = useState<RegistroAsignatura | null>(null);
 
   return (
-    <div>
-      <h2>Lista de Registros</h2>
-      <ul>
+    <div className="container mt-4">
+      <h2>Registros</h2>
+      <ul className="list-group">
         {registros.map((registro, index) => (
-          <li key={index}>
-            <span>
-              {registro.cuatrimestre} - {registro.materia}
-            </span>
-            <button onClick={() => abrirModal(registro)}>Ver Detalles</button>
+          <li
+            key={index}
+            className="list-group-item d-flex justify-content-between align-items-center"
+          >
+            {registro.asignatura} - {registro.profesorAsignado}
+            <button
+              className="btn btn-info btn-sm"
+              onClick={() => setRegistroSeleccionado(registro)}
+            >
+              Ver Detalles
+            </button>
           </li>
         ))}
       </ul>
-      {modalAbierto && registroSeleccionado && (
-        <div className="modal">
-          <h3>{registroSeleccionado.materia}</h3>
-          <p>Objetivo General: {registroSeleccionado.objetivoGeneral}</p>
-          <p>
-            Semanas de Clase:{" "}
-            {registroSeleccionado.unidadesDetalle.reduce(
-              (total, unidad) => total + (unidad.semanas || 0),
-              0
-            )}
-          </p>
-          <button onClick={cerrarModal}>Cerrar</button>
+      {registroSeleccionado && (
+        <div className="modal" style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{registroSeleccionado.asignatura}</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setRegistroSeleccionado(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Profesor: {registroSeleccionado.profesorAsignado}</p>
+                <p>Duración: {registroSeleccionado.duracionHoras} horas</p>
+                <p>Objetivo General: {registroSeleccionado.objetivoGeneral}</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
