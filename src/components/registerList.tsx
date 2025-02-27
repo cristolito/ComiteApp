@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { RegistroAsignatura } from "../models/register";
+import Formulario from "./form";
 
 interface ListaRegistrosProps {
   registros: RegistroAsignatura[];
@@ -42,12 +43,18 @@ const ListaRegistros: React.FC<ListaRegistrosProps> = ({ registros }) => {
               <div className="modal-body">
                 <p>Profesor: {registroSeleccionado.profesorAsignado}</p>
                 <p>Duración: {registroSeleccionado.duracionHoras} horas</p>
+                <p>Familia de carreras: {registroSeleccionado.familiaCarrera}</p>
+                <p>Cuatrimestre: {registroSeleccionado.cuatrimestre}</p>
+                <p>Nivel de competencia: {registroSeleccionado.nivelCompetencia}</p>
                 <p>Objetivo General: {registroSeleccionado.objetivoGeneral}</p>
                 <h6>Unidades de Aprendizaje:</h6>
                 <ul>
                   {registroSeleccionado.unidadesAprendizaje.map((unidad, idx) => (
                     <li key={idx}>
                       <strong>{unidad.nombre}</strong> - Saber: {unidad.porcentajes.saber}%, Hacer-Ser: {unidad.porcentajes.hacerSer}%
+                      <p>Competencia especifica: {unidad.competenciaEspecifica}</p>
+                      <p>Numero de semanas: {unidad.numeroSemanas}</p>
+                      <p>Resultado de aprendizaje: {unidad.resultadoAprendizaje}</p>
                     </li>
                   ))}
                 </ul>
