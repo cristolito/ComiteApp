@@ -15,6 +15,7 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
   const [objetivoGeneral, setObjetivoGeneral] = useState<string>("");
   const [numUnidades, setNumUnidades] = useState<number>(1); // Número de unidades seleccionadas
   const [unidades, setUnidades] = useState<UnidadAprendizaje[]>([]);
+  const [errores, setErrores] = useState<{ [key: string]: string }>({});
 
   // Inicializar las unidades cuando cambia el número de unidades
   useEffect(() => {
@@ -22,11 +23,11 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
       id: index + 1,
       nombre: "",
       competenciaEspecifica: "",
-      numeroSemanas: 0,
+      numeroSemanas: 1, // Valor por defecto: 1
       resultadoAprendizaje: "",
       porcentajes: {
-        saber: 0,
-        hacerSer: 0,
+        saber: 1, // Valor por defecto: 1
+        hacerSer: 1, // Valor por defecto: 1
       },
     }));
     setUnidades(nuevasUnidades);
@@ -39,23 +40,64 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
     valor: number
   ) => {
     const nuevasUnidades = [...unidades];
-    nuevasUnidades[index].porcentajes[campo] = valor;
+    if (valor < 1) {
+      nuevasUnidades[index].porcentajes.saber = 1;
+    }
+    else if (valor > 99) {
+      nuevasUnidades[index].porcentajes.saber = 99;
+    }
+    else {
+      nuevasUnidades[index].porcentajes[campo] = valor; // Validar que sea mayor o igual a 1
+    }
     setUnidades(nuevasUnidades);
   };
 
   // Validar que la suma de los porcentajes sea 100%
   const validarPorcentajes = (): boolean => {
-    const totalSaber = unidades.reduce((sum, unidad) => sum + unidad.porcentajes.saber, 0);
-    const totalHacerSer = unidades.reduce((sum, unidad) => sum + unidad.porcentajes.hacerSer, 0);
-    return totalSaber === 100 && totalHacerSer === 100;
+    const totalPorcentajes = unidades.reduce(
+      (total, unidad) => total + unidad.porcentajes.saber + unidad.porcentajes.hacerSer,
+      0
+    );
+    console.log(totalPorcentajes);
+    return totalPorcentajes === 100;
+  };
+
+  // Validar campos vacíos y select
+  const validarCampos = (): boolean => {
+    const nuevosErrores: { [key: string]: string } = {};
+
+    if (!asignatura) nuevosErrores.asignatura = "La asignatura es requerida";
+    if (!profesorAsignado) nuevosErrores.profesorAsignado = "El profesor es requerido";
+    if (!familiaCarrera) nuevosErrores.familiaCarrera = "La familia de carrera es requerida";
+    if (!cuatrimestre) nuevosErrores.cuatrimestre = "El cuatrimestre es requerido";
+    if (!nivelCompetencia) nuevosErrores.nivelCompetencia = "El nivel de competencia es requerido";
+    if (!objetivoGeneral) nuevosErrores.objetivoGeneral = "El objetivo general es requerido";
+
+    unidades.forEach((unidad, index) => {
+      if (!unidad.nombre) nuevosErrores[`unidad${index}Nombre`] = "El nombre de la unidad es requerido";
+      if (!unidad.competenciaEspecifica) nuevosErrores[`unidad${index}Competencia`] = "La competencia específica es requerida";
+      if (unidad.numeroSemanas < 1) nuevosErrores[`unidad${index}Semanas`] = "El número de semanas debe ser mayor o igual a 1";
+      if (!unidad.resultadoAprendizaje) nuevosErrores[`unidad${index}Resultado`] = "El resultado de aprendizaje es requerido";
+      if (unidad.porcentajes.saber < 1 || unidad.porcentajes.hacerSer < 1) {
+        nuevosErrores[`unidad${index}Porcentajes`] = "Los porcentajes deben ser mayores o iguales a 1";
+      }
+    });
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
   };
 
   // Manejar el envío del formulario
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!validarCampos()) {
+      alert("Por favor, complete todos los campos requeridos y asegúrese de que los valores sean válidos.");
+      return;
+    }
+
     if (!validarPorcentajes()) {
-      alert("La suma de los porcentajes de Saber y Hacer-Ser debe ser 100%.");
+      alert("La suma de los porcentajes de Saber y Hacer-Ser debe ser 100% en conjunto.");
       return;
     }
 
@@ -90,6 +132,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
               setUnidades(nuevasUnidades);
             }}
           />
+          {errores[`unidad${index}Nombre`] && (
+            <span className="text-danger">{errores[`unidad${index}Nombre`]}</span>
+          )}
         </div>
         <div className="mb-3">
           <label className="form-label">Competencia Específica</label>
@@ -102,6 +147,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
               setUnidades(nuevasUnidades);
             }}
           />
+          {errores[`unidad${index}Competencia`] && (
+            <span className="text-danger">{errores[`unidad${index}Competencia`]}</span>
+          )}
         </div>
         <div className="mb-3">
           <label className="form-label">Número de Semanas</label>
@@ -110,11 +158,16 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
             className="form-control"
             value={unidad.numeroSemanas}
             onChange={(e) => {
+              const value = parseInt(e.target.value);
               const nuevasUnidades = [...unidades];
-              nuevasUnidades[index].numeroSemanas = parseInt(e.target.value);
+              nuevasUnidades[index].numeroSemanas = value < 1 ? 1 : value; // Validar que sea mayor o igual a 1
               setUnidades(nuevasUnidades);
             }}
+            min="1" // Evita valores menores a 1
           />
+          {errores[`unidad${index}Semanas`] && (
+            <span className="text-danger">{errores[`unidad${index}Semanas`]}</span>
+          )}
         </div>
         <div className="mb-3">
           <label className="form-label">Resultado de Aprendizaje</label>
@@ -127,6 +180,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
               setUnidades(nuevasUnidades);
             }}
           />
+          {errores[`unidad${index}Resultado`] && (
+            <span className="text-danger">{errores[`unidad${index}Resultado`]}</span>
+          )}
         </div>
         <div className="mb-3">
           <label className="form-label">Porcentaje de Saber</label>
@@ -150,6 +206,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
             }
           />
         </div>
+        {errores[`unidad${index}Porcentajes`] && (
+          <span className="text-danger">{errores[`unidad${index}Porcentajes`]}</span>
+        )}
       </div>
     ));
   };
@@ -171,6 +230,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
             </option>
           ))}
         </select>
+        {errores.asignatura && (
+          <span className="text-danger">{errores.asignatura}</span>
+        )}
       </div>
       <div className="mb-3">
         <label className="form-label">Profesor Asignado</label>
@@ -186,6 +248,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
             </option>
           ))}
         </select>
+        {errores.profesorAsignado && (
+          <span className="text-danger">{errores.profesorAsignado}</span>
+        )}
       </div>
       <div className="mb-3">
         <label className="form-label">Familia de Carrera</label>
@@ -201,6 +266,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
             </option>
           ))}
         </select>
+        {errores.familiaCarrera && (
+          <span className="text-danger">{errores.familiaCarrera}</span>
+        )}
       </div>
       <div className="mb-3">
         <label className="form-label">Cuatrimestre</label>
@@ -216,6 +284,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
             </option>
           ))}
         </select>
+        {errores.cuatrimestre && (
+          <span className="text-danger">{errores.cuatrimestre}</span>
+        )}
       </div>
       <div className="mb-3">
         <label className="form-label">Nivel de Competencia</label>
@@ -224,6 +295,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
           value={nivelCompetencia}
           onChange={(e) => setNivelCompetencia(e.target.value)}
         />
+        {errores.nivelCompetencia && (
+          <span className="text-danger">{errores.nivelCompetencia}</span>
+        )}
       </div>
       <div className="mb-3">
         <label className="form-label">Objetivo General</label>
@@ -232,6 +306,9 @@ const Formulario: React.FC<FormularioProps> = ({ agregarRegistro }) => {
           value={objetivoGeneral}
           onChange={(e) => setObjetivoGeneral(e.target.value)}
         />
+        {errores.objetivoGeneral && (
+          <span className="text-danger">{errores.objetivoGeneral}</span>
+        )}
       </div>
       <div className="mb-3">
         <label className="form-label">Número de Unidades de Aprendizaje</label>
