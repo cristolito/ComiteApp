@@ -24,9 +24,11 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <h1 className="my-4">Registro de Asignaturas</h1>
-      <Formulario agregarRegistro={agregarRegistro} />
+    <div className="main-container">
+      <div className="form">
+        <h1 className="my-4">Registro de Asignaturas</h1>
+        <Formulario agregarRegistro={agregarRegistro} />
+      </div>
       <ListaRegistros registros={registros} />
     </div>
   );
